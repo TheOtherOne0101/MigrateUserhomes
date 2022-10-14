@@ -8,8 +8,12 @@ param (
     $OU,
 
     [Parameter(Mandatory)]
-    [String] # TODO -ValidatePath
-    $NewLocation
+    [String] # TODO - ValidatePath
+    $NewLocation,
+
+    [Parameter()]
+    [String] # TODO - Validate Usergroup
+    $SecurityGroup
 )
 
 Import-Module ".\Functions\MigrateUserhomes.psm1" -Force
@@ -27,6 +31,14 @@ else {
     foreach($user in $Users){
         if((!($null -eq $user.HomeDirectory)) -or (!($ExcludedUsers -contains $user.samaccountname))){
             
+            try {
+                Add-ADGroupMember -Identity $SecurityGroup -Members $user.samaccountname
+            }
+            catch {
+                Write-PSFMessage -Level Error -Message $_
+                continue
+            }
+
             try {
                 $user = Set-NewHomeDirectory -User $user -Path $NewLocation
             }
