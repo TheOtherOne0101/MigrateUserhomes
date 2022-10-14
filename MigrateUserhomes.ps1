@@ -31,12 +31,14 @@ else {
     foreach($user in $Users){
         if((!($null -eq $user.HomeDirectory)) -or (!($ExcludedUsers -contains $user.samaccountname))){
             
-            try {
-                Add-ADGroupMember -Identity $SecurityGroup -Members $user.samaccountname
-            }
-            catch {
-                Write-PSFMessage -Level Error -Message $_
-                continue
+            if (!($null -eq $SecurityGroup)) {
+                try {
+                    Add-ADGroupMember -Identity $SecurityGroup -Members $user.samaccountname
+                }
+                catch {
+                    Write-PSFMessage -Level Error -Message $_
+                    continue
+                }
             }
 
             try {
